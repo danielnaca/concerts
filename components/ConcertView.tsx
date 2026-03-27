@@ -295,7 +295,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               <div className="grid grid-cols-3 gap-px w-full h-full relative">
                 {cTiles.map((tile, i) => {
                   const nArtists = c.artists.length
-                  const noiseIdx = nArtists <= 1 ? 0 : Math.round(tile.artistIndex / (nArtists - 1) * 8)
+                  const mid = (nArtists - 1) / 2
+                  const noiseIdx = Math.max(0, Math.min(8, Math.round(3 + tile.artistIndex - mid)))
                   return (
                   <div
                     key={i}
