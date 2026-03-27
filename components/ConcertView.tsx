@@ -293,18 +293,21 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               onPointerLeave={isCenter ? handlePointerLeave : undefined}
             >
               <div className="grid grid-cols-3 gap-px w-full h-full relative">
-                {cTiles.map((tile, i) => (
+                {cTiles.map((tile, i) => {
+                  const nArtists = c.artists.length
+                  const noiseIdx = nArtists <= 1 ? 0 : Math.round(tile.artistIndex / (nArtists - 1) * 8)
+                  return (
                   <div
                     key={i}
                     style={{
-                      backgroundImage: `url('${NOISE_SRCS[i]}')`,
+                      backgroundImage: `url('${NOISE_SRCS[noiseIdx]}')`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
                       transition: 'box-shadow 0.25s ease',
                     }}
                   />
-                ))}
+                )})
               </div>
               {isCenter && (
                 <div
