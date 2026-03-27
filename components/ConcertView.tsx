@@ -18,7 +18,7 @@ const TILE_DELAY = TILE_ORDER.reduce<Record<number, number>>((acc, tileIdx, pos)
   return acc
 }, {})
 
-const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat', backgroundSize: '200px 200px' }
+const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat', backgroundSize: '104px 104px' }
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
@@ -301,7 +301,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                       transition: 'box-shadow 0.25s ease',
                     }}
                   >
-                    <div style={{ position: 'absolute', inset: 0, ...NOISE, opacity: 0.15, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', inset: 0, ...NOISE, opacity: 1, pointerEvents: 'none' }} />
                   </div>
                 ))}
               </div>
@@ -330,7 +330,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 1s ease' }}
       >
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
-          We haven't heard of most of the bands playing in our city, and there's a handful we'd see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
+          We haven't heard most of the bands playing in our city, and there's a handful we'd see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
         </p>
       </div>
       {/* Top-right tap target to reveal commit info */}
