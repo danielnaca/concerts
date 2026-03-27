@@ -303,7 +303,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         className="absolute left-6 right-6 pointer-events-none"
         style={{ top: 48, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 0.6s ease' }}
       >
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, lineHeight: 1.5 }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
           You probably haven't heard of most of the bands playing in your city — but you'd want to check out a few of them if you knew what they sounded like. Each tile represents an upcoming concert. Run your finger across the grid to sample its music.
         </p>
       </div>
