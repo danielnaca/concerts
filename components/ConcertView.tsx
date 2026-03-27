@@ -263,7 +263,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 boxShadow: isCenter ? '0 6px 34px rgba(0,0,0,0.15)' : 'none',
                 cursor: isCenter && !isSliding ? 'none' : 'pointer',
                 transform: `translateX(${relIdx * CAROUSEL_STEP}px)`,
-                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
               }}
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
               onPointerDown={isCenter ? handlePointerMove : undefined}
@@ -278,9 +278,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                     style={{
                       backgroundColor: showColor ? tile.color : TILE_GREY,
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
-                      transition: isCenter
-                        ? `background-color 0.2s ease ${TILE_DELAY[i] * 0.07}s, box-shadow 0.1s ease`
-                        : 'background-color 0.3s ease',
+                      transition: 'box-shadow 0.1s ease',
                     }}
                   />
                 ))}
