@@ -18,7 +18,9 @@ const TILE_DELAY = TILE_ORDER.reduce<Record<number, number>>((acc, tileIdx, pos)
   return acc
 }, {})
 
-const NOISE = { backgroundImage: "url('/noise.png')", backgroundRepeat: 'repeat', backgroundSize: '256px 256px' }
+// Noise images: 1 is darkest, 2 is palest, 3-9 fill the range
+// tileIndex 0 (lightest) → 2.png, tileIndex 1-7 → 3-9.png, tileIndex 8 (darkest) → 1.png
+const NOISE_SRCS = ['/noise/2.png', '/noise/3.png', '/noise/4.png', '/noise/5.png', '/noise/6.png', '/noise/7.png', '/noise/8.png', '/noise/9.png', '/noise/1.png']
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
@@ -295,14 +297,15 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   <div
                     key={i}
                     style={{
-                      backgroundColor: tile.color,
+                      backgroundImage: `url('${NOISE_SRCS[i]}')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
                       transition: 'box-shadow 0.25s ease',
                     }}
                   />
                 ))}
               </div>
-              <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.5 }} />
               {isCenter && (
                 <div
                   className="absolute rounded-full pointer-events-none"
