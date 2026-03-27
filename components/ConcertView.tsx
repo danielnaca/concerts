@@ -188,21 +188,24 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
   return (
     <div
+      data-layer="app-root"
       className="relative w-full h-full overflow-hidden select-none"
       style={{ paddingBottom: '70px' }}
     >
       {/* Background gradient — fades in on first interaction */}
       <div
+        data-layer="bg-gradient"
         className="absolute inset-0 pointer-events-none"
         style={{ background: 'linear-gradient(180deg, #777777 0%, #D4D4D4 100%)', opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease', zIndex: 0 }}
       />
       {/* Artist photo — crossfade */}
       <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        data-layer="photo-mask"
+        className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{
           height: 726,
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
+          maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
           opacity: hasInteracted ? 1 : 0,
           transition: 'opacity 1s ease',
         }}
@@ -211,8 +214,9 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           photoSlots[slot] && (
             <img
               key={slot}
+              data-layer={`photo-slot-${slot}`}
               src={photoSlots[slot]!}
-              className="absolute bottom-0 left-0 w-full object-cover object-bottom"
+              className="absolute top-0 left-0 w-full object-cover object-top"
               style={{
                 height: 726,
                 filter: 'grayscale(1)',
@@ -225,10 +229,10 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Color overlay — above photo, behind UI and cards */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: '#006191', mixBlendMode: 'multiply', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'opacity 0.3s ease' }} />
+      <div data-layer="color-overlay" className="absolute inset-0 pointer-events-none" style={{ background: '#006191', mixBlendMode: 'multiply', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'opacity 0.3s ease' }} />
 
       {/* Concert info — crossfade like photos */}
-      <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
+      <div data-layer="concert-info" className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
         {([0, 1] as const).map(slot => {
           const c = concerts[detailsSlots[slot]]
           const isActive = activeDetailsSlot === slot
@@ -236,6 +240,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           return (
             <div
               key={slot}
+              data-layer={`concert-info-slot-${slot}`}
               className="flex flex-col gap-6"
               style={{
                 position: slot === 0 ? 'relative' : 'absolute',
@@ -245,14 +250,15 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 pointerEvents: isActive ? 'auto' : 'none',
               }}
             >
-              <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75, textShadow: '0 1px 12px rgba(0,0,0,0.25)' }}>
+              <div data-layer="date-venue" className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75, textShadow: '0 1px 12px rgba(0,0,0,0.25)' }}>
                 <p>{cDateStr}</p>
                 <p>{c.venue}</p>
               </div>
-              <div className="flex flex-col">
+              <div data-layer="artist-names" className="flex flex-col">
                 {c.artists.map((artist, i) => (
                   <p
                     key={artist.id}
+                    data-layer={`artist-name-${i}`}
                     className="text-white text-2xl font-bold"
                     style={{
                       opacity: isActive && (activeArtistIndex === null || activeArtistIndex === i) ? 1 : isActive ? 0.4 : 1,
@@ -271,6 +277,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
       {/* Film strip carousel */}
       <div
+        data-layer="carousel"
         className="absolute left-0 right-0"
         style={{ bottom: 60, height: GRID_SIZE, zIndex: 10 }}
       >
@@ -285,6 +292,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           return (
             <div
               key={idx}
+              data-layer={isCenter ? 'card-center' : `card-side-${relIdx}`}
               ref={isCenter ? gridRef : null}
               className={isCenter ? 'touch-none' : ''}
               style={{
@@ -305,7 +313,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               onPointerUp={isCenter ? handlePointerUp : undefined}
               onPointerLeave={isCenter ? handlePointerLeave : undefined}
             >
-              <div className="grid grid-cols-3 w-full h-full relative" style={{ gap: 0 }}>
+              <div data-layer="tile-grid" className="grid grid-cols-3 w-full h-full relative" style={{ gap: 0 }}>
                 {cTiles.map((tile, i) => {
                   const nArtists = c.artists.length
                   const mid = (nArtists - 1) / 2
@@ -313,6 +321,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   return (
                   <div
                     key={i}
+                    data-layer={`tile-${i}`}
                     style={{
                       backgroundImage: `url('${NOISE_SRCS[noiseIdx]}')`,
                       backgroundSize: 'cover',
@@ -326,6 +335,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               </div>
               {isCenter && (
                 <div
+                  data-layer="locus"
                   className="absolute rounded-full pointer-events-none"
                   style={{
                     width: LOCUS_SIZE, height: LOCUS_SIZE,
@@ -344,6 +354,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
       {/* Intro text */}
       <div
+        data-layer="intro-text"
         className="absolute left-6 right-6 pointer-events-none"
         style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 1s ease' }}
       >
@@ -353,18 +364,21 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
       {/* Top-left tap target to toggle overlay */}
       <div
+        data-layer="tap-overlay-toggle"
         className="absolute top-0 left-0"
         style={{ width: 60, height: 60, zIndex: 30 }}
         onClick={() => setShowOverlay(v => !v)}
       />
       {/* Top-right tap target to reveal commit info */}
       <div
+        data-layer="tap-commit-toggle"
         className="absolute top-0 right-0"
         style={{ width: 60, height: 60, zIndex: 30 }}
         onClick={() => setShowCommit(v => !v)}
       />
       {/* Build info */}
       <div
+        data-layer="build-info"
         className="absolute bottom-2 left-0 right-0 text-center pointer-events-none"
         style={{ zIndex: 20, fontSize: 14, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.02em', opacity: showCommit ? 1 : 0, transition: 'opacity 0.3s ease' }}
       >
