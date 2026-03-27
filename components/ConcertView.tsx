@@ -303,6 +303,13 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           )
         })}
       </div>
+      {/* Build info */}
+      <div
+        className="absolute bottom-2 left-0 right-0 text-center pointer-events-none"
+        style={{ zIndex: 20, fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.02em' }}
+      >
+        {process.env.NEXT_PUBLIC_COMMIT_INFO}
+      </div>
     </div>
   )
 }
