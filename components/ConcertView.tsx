@@ -227,8 +227,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Concert info — crossfade like photos */}
       {/* Top bar */}
       <div data-layer="top-bar" className="absolute flex flex-row items-center justify-between" style={{ top: 16, left: 16, right: 16, zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
-        <div data-layer="top-bar-left" className="flex flex-row items-center" style={{ gap: 4 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Grid</span>
+        <div data-layer="top-bar-left" className="flex flex-row items-center" style={{ gap: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'white', textDecoration: 'underline' }}>Grid</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>List</span>
         </div>
         <div data-layer="top-bar-right" className="flex flex-row items-center gap-4">
