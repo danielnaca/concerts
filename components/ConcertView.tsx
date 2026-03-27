@@ -235,7 +235,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Film strip carousel */}
       <div
         className="absolute left-0 right-0 overflow-hidden"
-        style={{ bottom: 40, height: GRID_SIZE, zIndex: 10 }}
+        style={{ bottom: 60, height: GRID_SIZE, zIndex: 10 }}
       >
         {Array.from({ length: VISIBLE_RANGE * 2 + 1 }, (_, k) => {
           const relIdx = k - VISIBLE_RANGE
@@ -305,7 +305,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 0.6s ease' }}
       >
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
-          We haven't heard of most of the bands playing in our city, but if we knew their music there's a handful we'd want to see.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
+          We haven't heard of most of the bands playing in our city, but there's a handful we'd want to see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
         </p>
       </div>
       {/* Top-right tap target to reveal commit info */}
