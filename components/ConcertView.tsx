@@ -6,8 +6,8 @@ import { buildTiles } from '@/lib/tiles'
 import { gradientStops, midTileColor } from '@/lib/color'
 
 const LOCUS_SIZE = 76
-const GRID_SIZE = 311
-const CAROUSEL_STEP = 335
+const GRID_SIZE = 300
+const CAROUSEL_STEP = 332
 const SLIDE_MS = 600
 const VISIBLE_RANGE = 3
 
@@ -256,7 +256,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 width: GRID_SIZE, height: GRID_SIZE,
                 borderRadius: 34, overflow: 'hidden',
                 backgroundColor: 'transparent',
-                boxShadow: isCenter ? '0 6px 34px rgba(0,0,0,0.15)' : 'none',
+                boxShadow: isCenter ? 'rgba(0, 0, 0, 0.35) 0px 6px 34px' : 'none',
                 cursor: isCenter && !isSliding ? 'none' : 'pointer',
                 opacity: isCenter && !hasInteracted ? 0.3 : 1,
                 transform: `translateX(${relIdx * (hasSettled ? CAROUSEL_STEP : GRID_SIZE + 100)}px)`,
@@ -273,11 +273,14 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   <div
                     key={i}
                     style={{
+                      position: 'relative',
                       backgroundColor: tile.color,
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
                       transition: 'box-shadow 0.25s ease',
                     }}
-                  />
+                  >
+                    <div style={{ position: 'absolute', inset: 0, ...NOISE, opacity: 0.15, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
+                  </div>
                 ))}
               </div>
               <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
