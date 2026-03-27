@@ -159,7 +159,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   return (
     <div
       className="relative w-full h-full overflow-hidden select-none"
-      style={{ paddingBottom: '70px', background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#000', transition: 'background 0.6s ease' }}
+      style={{ paddingBottom: '70px', background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#000', transition: 'background 1s ease' }}
     >
       {/* Artist photo — crossfade */}
       <div
@@ -168,7 +168,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           maskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 75%)',
           WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 75%)',
           opacity: hasInteracted ? 1 : 0,
-          transition: 'opacity 0.6s ease',
+          transition: 'opacity 1s ease',
         }}
       >
         {([0, 1] as const).map(slot => (
@@ -192,7 +192,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
 
       {/* Concert info — crossfade like photos */}
-      <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }}>
+      <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
         {([0, 1] as const).map(slot => {
           const c = concerts[detailsSlots[slot]]
           const isActive = activeDetailsSlot === slot
@@ -260,7 +260,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 cursor: isCenter && !isSliding ? 'none' : 'pointer',
                 opacity: isCenter && !hasInteracted ? 0.3 : 1,
                 transform: `translateX(${relIdx * (hasSettled ? CAROUSEL_STEP : GRID_SIZE + 100)}px)`,
-                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.6s ease`,
+                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.3, 0.64, 1), opacity 1s ease`,
               }}
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
               onPointerDown={isCenter ? handlePointerMove : undefined}
@@ -302,7 +302,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Intro text */}
       <div
         className="absolute left-6 right-6 pointer-events-none"
-        style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 0.6s ease' }}
+        style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 1s ease' }}
       >
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
           We haven't heard of most of the bands playing in our city and there's a handful we'd want to see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
