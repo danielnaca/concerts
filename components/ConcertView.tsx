@@ -212,7 +212,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Color overlay — above photo, behind UI and cards */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: '#9E0000', mixBlendMode: 'exclusion', zIndex: 2 }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `hsl(${hue}, 100%, 31%)`, mixBlendMode: 'exclusion', zIndex: 2, transition: 'background 1s ease' }} />
 
       {/* Concert info — crossfade like photos */}
       <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
