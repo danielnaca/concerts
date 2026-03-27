@@ -146,7 +146,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   return (
     <div
       className="relative w-full h-full overflow-hidden select-none"
-      style={{ background: `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` }}
+      style={{ background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#000', transition: 'background 0.6s ease' }}
     >
       {/* Artist photo — crossfade */}
       <div
@@ -176,7 +176,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Dark overlay */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2, opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
 
       {/* Concert info — crossfade like photos */}
       <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }}>
