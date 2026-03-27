@@ -161,7 +161,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   }, [handlePointerMove])
 
   const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (pointerDownPos.current) {
+    const wasPlaying = audioRef.current && !audioRef.current.paused
+    if (!wasPlaying && pointerDownPos.current) {
       const dx = e.clientX - pointerDownPos.current.x
       const dy = e.clientY - pointerDownPos.current.y
       pointerDownPos.current = null
@@ -170,6 +171,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         return
       }
     }
+    pointerDownPos.current = null
     handlePointerLeave()
   }, [navigate, handlePointerLeave])
 
