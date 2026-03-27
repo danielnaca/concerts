@@ -10,9 +10,9 @@ const GRID_SIZE = 311
 const CAROUSEL_STEP = 322
 const FADE_STEP = 0.06
 const FADE_INTERVAL = 25
+const SLIDE_MS = 400
+const VISIBLE_RANGE = 3  // render current ±3 so edge mounts/unmounts are off-screen
 
-// Spiral order: center → right → bottom-right → bottom → bottom-left →
-//               left → top-left → top → top-right
 const SPIRAL = [4, 5, 8, 7, 6, 3, 0, 1, 2]
 const TILE_DELAY = SPIRAL.reduce<Record<number, number>>((acc, tile, i) => {
   acc[tile] = i
@@ -23,11 +23,11 @@ const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat'
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
+  const [outgoingIndex, setOutgoingIndex] = useState<number | null>(null)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
-  const [slideOffset, setSlideOffset] = useState(0)
   const [isSliding, setIsSliding] = useState(false)
   const [photoSlots, setPhotoSlots] = useState<[string | null, string | null]>([null, null])
   const [activePhotoSlot, setActivePhotoSlot] = useState<0 | 1>(0)
@@ -37,31 +37,22 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const isMutedRef = useRef(false)
   const activeTileRef = useRef<number | null>(null)
-  const pendingIndexRef = useRef<number>(0)
-  const navDirRef = useRef<1 | -1>(1)
   const hasNavigatedRef = useRef(false)
+  const navDirRef = useRef<1 | -1>(1)
+  const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => { isMutedRef.current = isMuted }, [isMuted])
   useEffect(() => { activeTileRef.current = activeTileIndex }, [activeTileIndex])
 
-  // ── Derived values (declared before effects that reference them) ───────────
+  // ── Derived values ────────────────────────────────────────────────────────
 
   const n = concerts.length
   const concert = concerts[concertIndex]
   const hue = concert.hueShift ?? 0
   const [gradTop, gradBot] = gradientStops(hue)
   const tiles = buildTiles(concert.artists, hue)
-  const sideColor = midTileColor(concert.artists.length, hue)
   const activeArtistIndex = activeTileIndex !== null ? (tiles[activeTileIndex]?.artistIndex ?? null) : null
   const displayArtist = activeArtistIndex !== null ? concert.artists[activeArtistIndex] : concert.artists[0]
-
-  // Neighboring concerts — always rendered in side cards so they slide in smoothly
-  const prevConcert = concerts[(concertIndex - 1 + n) % n]
-  const nextConcert = concerts[(concertIndex + 1) % n]
-  const prevTiles = buildTiles(prevConcert.artists, prevConcert.hueShift ?? 0)
-  const nextTiles = buildTiles(nextConcert.artists, nextConcert.hueShift ?? 0)
-  const prevSideColor = midTileColor(prevConcert.artists.length, prevConcert.hueShift ?? 0)
-  const nextSideColor = midTileColor(nextConcert.artists.length, nextConcert.hueShift ?? 0)
 
   const dateStr = new Date(concert.date + 'T12:00:00').toLocaleDateString('en-US', {
     month: 'long', day: 'numeric',
@@ -120,7 +111,10 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     if (audioRef.current) fadeOut(audioRef.current, () => { audioRef.current = null })
   }, [fadeOut])
 
-  // ── Carousel ──────────────────────────────────────────────────────────────
+  // ── Carousel — film strip ─────────────────────────────────────────────────
+  // Each grid lives at its own absolute position (relIdx × CAROUSEL_STEP).
+  // Navigating updates concertIndex immediately → every grid's transform changes
+  // → CSS transitions fire on all of them at once. No container snap needed.
 
   const navigate = useCallback((dir: 1 | -1) => {
     if (isSliding) return
@@ -128,24 +122,25 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setActiveTileIndex(null)
     setLocusVisible(false)
     const next = (concertIndex - dir + n) % n
-    pendingIndexRef.current = next
     navDirRef.current = dir
     hasNavigatedRef.current = true
-    crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
-    setIsSliding(true)
-    setSlideOffset(dir * CAROUSEL_STEP)
-    setDetailsAnim({ opacity: 0, x: dir * 20, transition: true })
-  }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo])
 
-  const handleTransitionEnd = useCallback((e: React.TransitionEvent<HTMLDivElement>) => {
-    if (e.target !== e.currentTarget || e.propertyName !== 'transform') return
-    setConcertIndex(pendingIndexRef.current)
-    setIsSliding(false)
-    setSlideOffset(0)
-    const dir = navDirRef.current
-    setDetailsAnim({ opacity: 0, x: -dir * 20, transition: false })
-    requestAnimationFrame(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }))
-  }, [])
+    crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
+    setOutgoingIndex(concertIndex)
+    setConcertIndex(next)
+    setIsSliding(true)
+    setDetailsAnim({ opacity: 0, x: dir * 20, transition: true })
+
+    if (slideTimerRef.current) clearTimeout(slideTimerRef.current)
+    slideTimerRef.current = setTimeout(() => {
+      setOutgoingIndex(null)
+      setIsSliding(false)
+      const d = navDirRef.current
+      // New details enter from the same side as the incoming grid
+      setDetailsAnim({ opacity: 0, x: -d * 80, transition: false })
+      requestAnimationFrame(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }))
+    }, SLIDE_MS)
+  }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo])
 
   // ── Locus ─────────────────────────────────────────────────────────────────
 
@@ -176,17 +171,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setActiveTileIndex(null)
     stopAudio()
   }, [stopAudio])
-
-  // Active grid tile animation:
-  // - First load: spiral tileIn
-  // - Navigating: all tiles tileOut together (0.3s)
-  // - After navigation: no animation (tiles snap to opacity 1, same as incoming side card)
-  const activeTileAnim = (i: number) =>
-    isSliding
-      ? 'tileOut 0.3s ease forwards'
-      : hasNavigatedRef.current
-        ? 'none'
-        : `tileIn 0.2s ease ${TILE_DELAY[i] * 0.1}s both`
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -221,7 +205,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Dark overlay between photo and UI */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.2)', zIndex: 2 }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
 
       {/* Concert info + artist list */}
       <div
@@ -250,102 +234,76 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         </div>
       </div>
 
-      {/* Carousel */}
+      {/* Film strip carousel — grids positioned absolutely, all slide together */}
       <div
         className="absolute left-0 right-0 overflow-hidden"
         style={{ bottom: 100, height: GRID_SIZE, zIndex: 10 }}
       >
-        <div
-          style={{
-            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-            transform: `translateX(${slideOffset}px)`,
-            transition: isSliding ? 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
-          }}
-          onTransitionEnd={handleTransitionEnd}
-        >
-          {/* Left side card — always shows prev concert */}
-          <div
-            onClick={() => navigate(1)}
-            style={{
-              position: 'absolute', top: 0,
-              left: `calc(50% - ${CAROUSEL_STEP + GRID_SIZE / 2}px)`,
-              width: GRID_SIZE, height: GRID_SIZE,
-              borderRadius: 34, overflow: 'hidden',
-              backgroundColor: prevSideColor, cursor: 'pointer',
-            }}
-          >
-            <div className="grid grid-cols-3 gap-px w-full h-full">
-              {prevTiles.map((tile, i) => (
-                <div key={i} style={{ backgroundColor: tile.color }} />
-              ))}
-            </div>
-            <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
-          </div>
+        {Array.from({ length: VISIBLE_RANGE * 2 + 1 }, (_, k) => {
+          const relIdx = k - VISIBLE_RANGE
+          const idx = ((concertIndex + relIdx) % n + n) % n
+          const c = concerts[idx]
+          const cHue = c.hueShift ?? 0
+          const cTiles = buildTiles(c.artists, cHue)
+          const cSideColor = midTileColor(c.artists.length, cHue)
+          const isCenter = relIdx === 0
+          const isOutgoing = outgoingIndex === idx
 
-          {/* Active grid */}
-          <div
-            ref={gridRef}
-            className="touch-none"
-            style={{
-              position: 'absolute', top: 0,
-              left: `calc(50% - ${GRID_SIZE / 2}px)`,
-              width: GRID_SIZE, height: GRID_SIZE,
-              borderRadius: 34, overflow: 'hidden',
-              boxShadow: '0 6px 34px rgba(0,0,0,0.15)',
-              backgroundColor: sideColor,
-              cursor: isSliding ? 'default' : 'none',
-            }}
-            onPointerMove={handlePointerMove}
-            onPointerLeave={handlePointerLeave}
-          >
-            <div className="grid grid-cols-3 gap-px w-full h-full relative">
-              {tiles.map((tile, i) => (
+          return (
+            <div
+              key={idx}
+              ref={isCenter ? gridRef : null}
+              className={isCenter ? 'touch-none' : ''}
+              style={{
+                position: 'absolute', top: 0,
+                left: `calc(50% - ${GRID_SIZE / 2}px)`,
+                width: GRID_SIZE, height: GRID_SIZE,
+                borderRadius: 34, overflow: 'hidden',
+                backgroundColor: cSideColor,
+                boxShadow: isCenter ? '0 6px 34px rgba(0,0,0,0.15)' : 'none',
+                cursor: isCenter && !isSliding ? 'none' : 'pointer',
+                transform: `translateX(${relIdx * CAROUSEL_STEP}px)`,
+                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+              }}
+              onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
+              onPointerMove={isCenter ? handlePointerMove : undefined}
+              onPointerLeave={isCenter ? handlePointerLeave : undefined}
+            >
+              <div className="grid grid-cols-3 gap-px w-full h-full relative">
+                {cTiles.map((tile, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      backgroundColor: tile.color,
+                      filter: isCenter && activeTileIndex === i ? 'brightness(1.2)' : 'brightness(1)',
+                      animation: isOutgoing
+                        ? 'tileOut 0.3s ease forwards'
+                        : isCenter && !hasNavigatedRef.current
+                          ? `tileIn 0.2s ease ${TILE_DELAY[i] * 0.1}s both`
+                          : 'none',
+                      transition: 'filter 0.1s ease',
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
+              {isCenter && (
                 <div
-                  key={i}
+                  className="absolute rounded-full pointer-events-none"
                   style={{
-                    backgroundColor: tile.color,
-                    filter: activeTileIndex === i ? 'brightness(1.2)' : 'brightness(1)',
-                    animation: activeTileAnim(i),
-                    transition: 'filter 0.1s ease',
+                    width: LOCUS_SIZE, height: LOCUS_SIZE,
+                    left: locusPos.x - LOCUS_SIZE / 2,
+                    top: locusPos.y - LOCUS_SIZE / 2,
+                    background: 'rgba(255,255,255,0.4)',
+                    mixBlendMode: 'soft-light',
+                    opacity: locusVisible ? 1 : 0,
+                    transition: 'opacity 0.15s ease',
                   }}
                 />
-              ))}
+              )}
             </div>
-            <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
-
-            <div
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                width: LOCUS_SIZE, height: LOCUS_SIZE,
-                left: locusPos.x - LOCUS_SIZE / 2,
-                top: locusPos.y - LOCUS_SIZE / 2,
-                background: 'rgba(255,255,255,0.4)',
-                mixBlendMode: 'soft-light',
-                opacity: locusVisible ? 1 : 0,
-                transition: 'opacity 0.15s ease',
-              }}
-            />
-          </div>
-
-          {/* Right side card — always shows next concert */}
-          <div
-            onClick={() => navigate(-1)}
-            style={{
-              position: 'absolute', top: 0,
-              left: `calc(50% + ${CAROUSEL_STEP - GRID_SIZE / 2}px)`,
-              width: GRID_SIZE, height: GRID_SIZE,
-              borderRadius: 34, overflow: 'hidden',
-              backgroundColor: nextSideColor, cursor: 'pointer',
-            }}
-          >
-            <div className="grid grid-cols-3 gap-px w-full h-full">
-              {nextTiles.map((tile, i) => (
-                <div key={i} style={{ backgroundColor: tile.color }} />
-              ))}
-            </div>
-            <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
-          </div>
-        </div>
+          )
+        })}
       </div>
 
       {/* Controls */}
