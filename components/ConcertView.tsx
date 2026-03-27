@@ -222,7 +222,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Film strip carousel */}
       <div
         className="absolute left-0 right-0 overflow-hidden"
-        style={{ bottom: 20, height: GRID_SIZE, zIndex: 10 }}
+        style={{ bottom: 40, height: GRID_SIZE, zIndex: 10 }}
       >
         {Array.from({ length: VISIBLE_RANGE * 2 + 1 }, (_, k) => {
           const relIdx = k - VISIBLE_RANGE
@@ -261,7 +261,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                     style={{
                       backgroundColor: tile.color,
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
-                      transition: 'box-shadow 0.1s ease',
+                      transition: 'box-shadow 0.25s ease',
                     }}
                   />
                 ))}
