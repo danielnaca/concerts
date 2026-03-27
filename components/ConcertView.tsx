@@ -91,29 +91,28 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   }, [])
 
   const playTrack = useCallback((url: string | null) => {
-    const prev = audioRef.current
-    if (prev) fadeOut(prev)
-    if (!url) { audioRef.current = null; return }
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+    if (!url) return
     const audio = new Audio(url)
     audio.volume = 0
     audioRef.current = audio
     audio.play().catch(() => {})
     const id = setInterval(() => {
       if (audioRef.current !== audio) { clearInterval(id); return }
-      audio.volume = Math.min(audio.volume + FADE_STEP, isMutedRef.current ? 0 : 1)
+      audio.volume = Math.min(audio.volume + FADE_STEP, 1)
       if (audio.volume >= 1) clearInterval(id)
     }, FADE_INTERVAL)
-  }, [fadeOut])
+  }, [])
 
   const stopAudio = useCallback(() => {
-    if (audioRef.current) fadeOut(audioRef.current, () => { audioRef.current = null })
-  }, [fadeOut])
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+  }, [])
 
   // ── Carousel ──────────────────────────────────────────────────────────────
 
   const navigate = useCallback((dir: 1 | -1) => {
     if (isSliding) return
-    stopAudio()
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
     setActiveTileIndex(null)
     setLocusVisible(false)
     const next = (concertIndex - dir + n) % n
@@ -269,6 +268,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
               onPointerDown={isCenter ? handlePointerMove : undefined}
               onPointerMove={isCenter ? handlePointerMove : undefined}
+              onPointerUp={isCenter ? handlePointerLeave : undefined}
               onPointerLeave={isCenter ? handlePointerLeave : undefined}
             >
               <div className="grid grid-cols-3 gap-px w-full h-full relative">
@@ -307,7 +307,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Build info */}
       <div
         className="absolute bottom-2 left-0 right-0 text-center pointer-events-none"
-        style={{ zIndex: 20, fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.02em' }}
+        style={{ zIndex: 20, fontSize: 14, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.02em' }}
       >
         {process.env.NEXT_PUBLIC_COMMIT_INFO}
       </div>
