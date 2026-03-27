@@ -194,15 +194,15 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Background gradient — fades in on first interaction */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, #D4D4D4 0%, #696969 100%)', opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease', zIndex: 0 }}
+        style={{ background: 'linear-gradient(180deg, #696969 0%, #D4D4D4 100%)', opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease', zIndex: 0 }}
       />
       {/* Artist photo — crossfade */}
       <div
-        className="absolute top-0 left-0 right-0 pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{
-          height: 500,
-          maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+          height: 726,
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
           opacity: hasInteracted ? 1 : 0,
           transition: 'opacity 1s ease',
         }}
@@ -212,9 +212,9 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
             <img
               key={slot}
               src={photoSlots[slot]!}
-              className="absolute top-0 left-0 w-full object-cover object-top"
+              className="absolute bottom-0 left-0 w-full object-cover object-bottom"
               style={{
-                height: 500,
+                height: 726,
                 filter: 'grayscale(1)',
                 opacity: activePhotoSlot === slot ? 1 : 0,
                 transition: 'opacity 0.5s linear',
@@ -225,7 +225,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Color overlay — above photo, behind UI and cards */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: `hsl(${overlayHue(concertIndex)}, 100%, 28%)`, mixBlendMode: 'exclusion', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'background 1s ease, opacity 0.3s ease' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: '#006191', mixBlendMode: 'multiply', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'opacity 0.3s ease' }} />
 
       {/* Concert info — crossfade like photos */}
       <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
@@ -253,7 +253,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 {c.artists.map((artist, i) => (
                   <p
                     key={artist.id}
-                    className="text-white text-2xl font-light"
+                    className="text-white text-2xl font-bold"
                     style={{
                       opacity: isActive && (activeArtistIndex === null || activeArtistIndex === i) ? 1 : isActive ? 0.4 : 1,
                       transition: 'opacity 0.3s ease',
