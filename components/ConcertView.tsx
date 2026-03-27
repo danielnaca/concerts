@@ -305,7 +305,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               onPointerUp={isCenter ? handlePointerUp : undefined}
               onPointerLeave={isCenter ? handlePointerLeave : undefined}
             >
-              <div className="grid grid-cols-3 gap-px w-full h-full relative">
+              <div className="grid grid-cols-3 w-full h-full relative" style={{ gap: '1px', backgroundColor: '#555' }}>
                 {cTiles.map((tile, i) => {
                   const nArtists = c.artists.length
                   const mid = (nArtists - 1) / 2
