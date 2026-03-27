@@ -274,13 +274,20 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   <div
                     key={i}
                     style={{
+                      position: 'relative',
                       backgroundColor: showColor ? tile.color : TILE_GREY,
-                      filter: isCenter && activeTileIndex === i ? 'brightness(1.2)' : 'brightness(1)',
                       transition: isCenter
-                        ? `background-color 0.2s ease ${TILE_DELAY[i] * 0.07}s, filter 0.1s ease`
-                        : 'background-color 0.3s ease, filter 0.1s ease',
+                        ? `background-color 0.2s ease ${TILE_DELAY[i] * 0.07}s`
+                        : 'background-color 0.3s ease',
                     }}
-                  />
+                  >
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      backgroundColor: 'white',
+                      opacity: isCenter && activeTileIndex === i ? 0.2 : 0,
+                      transition: 'opacity 0.1s ease',
+                    }} />
+                  </div>
                 ))}
               </div>
               <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
