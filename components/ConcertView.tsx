@@ -33,6 +33,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [hasInteracted, setHasInteracted] = useState(false)
   const [hasSettled, setHasSettled] = useState(false)
   const [showCommit, setShowCommit] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(false)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
@@ -218,7 +219,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Color overlay — above photo, behind UI and cards */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: `hsl(${overlayHue(concertIndex)}, 100%, 28%)`, mixBlendMode: 'exclusion', zIndex: 2, transition: 'background 1s ease' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `hsl(${overlayHue(concertIndex)}, 100%, 28%)`, mixBlendMode: 'exclusion', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'background 1s ease, opacity 0.3s ease' }} />
 
       {/* Concert info — crossfade like photos */}
       <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
@@ -344,6 +345,12 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           We haven't heard most of the bands playing in our city, and there's a handful we'd see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
         </p>
       </div>
+      {/* Top-left tap target to toggle overlay */}
+      <div
+        className="absolute top-0 left-0"
+        style={{ width: 60, height: 60, zIndex: 30 }}
+        onClick={() => setShowOverlay(v => !v)}
+      />
       {/* Top-right tap target to reveal commit info */}
       <div
         className="absolute top-0 right-0"
