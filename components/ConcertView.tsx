@@ -305,7 +305,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 0.6s ease' }}
       >
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
-          You probably haven't heard of most of the bands playing in your city this week, but if you knew their music you'd probably want to see a few of them.<br /><br />Each grid represents a concert in your area, run your finger across it to sample the music.
+          We haven't heard of most of the bands playing in our city, but if we knew their music there's a handful we'd want to see.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
         </p>
       </div>
       {/* Top-right tap target to reveal commit info */}
