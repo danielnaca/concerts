@@ -194,8 +194,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          maskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 75%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 75%)',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 90%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 90%)',
           opacity: hasInteracted ? 1 : 0,
           transition: 'opacity 1s ease',
         }}
@@ -238,7 +238,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 pointerEvents: isActive ? 'auto' : 'none',
               }}
             >
-              <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75 }}>
+              <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75, textShadow: '0 1px 12px rgba(0,0,0,0.5)' }}>
                 <p>{cDateStr}</p>
                 <p>{c.venue}</p>
               </div>
@@ -340,7 +340,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         className="absolute left-6 right-6 pointer-events-none"
         style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 1s ease' }}
       >
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
           We haven't heard most of the bands playing in our city, and there's a handful we'd see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
         </p>
       </div>
