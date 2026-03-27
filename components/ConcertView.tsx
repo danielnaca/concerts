@@ -24,6 +24,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
   const [hasInteracted, setHasInteracted] = useState(false)
   const [hasSettled, setHasSettled] = useState(false)
+  const [showCommit, setShowCommit] = useState(false)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
@@ -91,7 +92,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     audioRef.current.addEventListener('playing', () => {
       fadeIntervalRef.current = setInterval(() => {
         if (!audioRef.current) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null; return }
-        audioRef.current.volume = Math.min(1, audioRef.current.volume + 0.04)
+        audioRef.current.volume = Math.min(1, audioRef.current.volume + 0.025)
         if (audioRef.current.volume >= 1) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null }
       }, 25)
     }, { once: true })
@@ -307,10 +308,16 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           You probably haven't heard of most of the bands playing in your city this week, but if you knew their music you'd probably want to see a few of them.<br /><br />Each grid represents a concert in your area, run your finger across it to sample the music.
         </p>
       </div>
+      {/* Top-right tap target to reveal commit info */}
+      <div
+        className="absolute top-0 right-0"
+        style={{ width: 60, height: 60, zIndex: 30 }}
+        onClick={() => setShowCommit(v => !v)}
+      />
       {/* Build info */}
       <div
         className="absolute bottom-2 left-0 right-0 text-center pointer-events-none"
-        style={{ zIndex: 20, fontSize: 14, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.02em', opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }}
+        style={{ zIndex: 20, fontSize: 14, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.02em', opacity: showCommit ? 1 : 0, transition: 'opacity 0.3s ease' }}
       >
         {process.env.NEXT_PUBLIC_COMMIT_INFO}
       </div>
