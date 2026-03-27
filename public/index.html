@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Concerts</title>
+</head>
+<body>
+  <button id="prev">← Prev</button>
+  <button id="next">Next →</button>
+
+  <div id="concert"></div>
+
+  <script>
+    let concerts = [];
+    let current = 0;
+    let audio = null;
+
+    fetch('/data/shows.json')
+      .then(r => r.json())
+      .then(data => {
+        concerts = data.concerts;
+        render();
+      });
+
+    function allocate(artists, total) {
+      // distribute `total` slots as evenly as possible across artists
+      const n = artists.length;
+      const base = Math.floor(total / n);
+      const extra = total % n;
+      return artists.map((_, i) => i < extra ? base + 1 : base);
+    }
+
+    function render() {
+      const c = concerts[current];
+      const div = document.getElementById('concert');
+
+      let html = `<h2>${c.date} — ${c.genre} @ ${c.venue}</h2>`;
+      html += `<p>${current + 1} of ${concerts.length}</p>`;
+      html += '<ul>';
+
+      const slots = allocate(c.artists, 9);
+
+      for (let i = 0; i < c.artists.length; i++) {
+        const artist = c.artists[i];
+        const count = slots[i];
+        const tracks = (artist.tracks || []).filter(t => t.previewUrl).slice(0, count);
+
+        html += `<li><strong>${artist.name}</strong> (${tracks.length} track${tracks.length !== 1 ? 's' : ''})`;
+        html += '<ul>';
+        if (tracks.length) {
+          for (const t of tracks) {
+            html += `<li><a href="#" data-url="${t.previewUrl}">▶ ${t.name}</a></li>`;
+          }
+        } else {
+          html += `<li><em>no preview available</em></li>`;
+        }
+        html += '</ul></li>';
+      }
+
+      html += '</ul>';
+      div.innerHTML = html;
+
+      div.querySelectorAll('a[data-url]').forEach(a => {
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          if (audio) audio.pause();
+          audio = new Audio(a.dataset.url);
+          audio.play();
+        });
+      });
+    }
+
+    document.getElementById('prev').addEventListener('click', () => {
+      if (audio) audio.pause();
+      current = (current - 1 + concerts.length) % concerts.length;
+      render();
+    });
+
+    document.getElementById('next').addEventListener('click', () => {
+      if (audio) audio.pause();
+      current = (current + 1) % concerts.length;
+      render();
+    });
+  </script>
+</body>
+</html>
