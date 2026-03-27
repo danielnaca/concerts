@@ -38,6 +38,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
   const [isSliding, setIsSliding] = useState(false)
+  const [photoSlots, setPhotoSlots] = useState<[string | null, string | null]>([null, null])
+  const [activePhotoSlot, setActivePhotoSlot] = useState<0 | 1>(0)
   const [detailsSlots, setDetailsSlots] = useState<[number, number]>([0, 0])
   const [activeDetailsSlot, setActiveDetailsSlot] = useState<0 | 1>(0)
 
@@ -47,11 +49,11 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const activeTileRef = useRef<number | null>(null)
   const pointerDownPos = useRef<{ x: number; y: number } | null>(null)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
+  const activePhotoSlotRef = useRef<0 | 1>(0)
   const activeDetailsSlotRef = useRef<0 | 1>(0)
 
   useEffect(() => { activeTileRef.current = activeTileIndex }, [activeTileIndex])
-
+  useEffect(() => { activePhotoSlotRef.current = activePhotoSlot }, [activePhotoSlot])
   useEffect(() => { activeDetailsSlotRef.current = activeDetailsSlot }, [activeDetailsSlot])
 // ── Derived values ────────────────────────────────────────────────────────
 
@@ -63,13 +65,18 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const activeArtistIndex = activeTileIndex !== null ? (tiles[activeTileIndex]?.artistIndex ?? null) : null
   const displayArtist = activeArtistIndex !== null ? concert.artists[activeArtistIndex] : concert.artists[0]
 
-  // ── Photo — set on body background ───────────────────────────────────────
+  // ── Photo crossfade ───────────────────────────────────────────────────────
+
+  const crossfadeTo = useCallback((url: string | null) => {
+    if (!url) return
+    const next = activePhotoSlotRef.current === 0 ? 1 : 0
+    setPhotoSlots(prev => { const s: [string | null, string | null] = [prev[0], prev[1]]; s[next] = url; return s })
+    requestAnimationFrame(() => setActivePhotoSlot(next))
+  }, [])
 
   useEffect(() => {
-    const url = displayArtist?.images?.large ?? null
-    document.body.style.backgroundImage = url ? `url(${url})` : 'none'
-    document.body.style.backgroundSize = 'cover'
-    document.body.style.backgroundPosition = 'top center'
+    crossfadeTo(displayArtist?.images?.large ?? null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayArtist?.id])
 
   // ── Details crossfade ─────────────────────────────────────────────────────
@@ -114,13 +121,14 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setLocusVisible(false)
     const next = (concertIndex - dir + n) % n
     setHasInteracted(true)
+    crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
     crossfadeDetailsTo(next)
     setConcertIndex(next)
     setIsSliding(true)
 
     if (slideTimerRef.current) clearTimeout(slideTimerRef.current)
     slideTimerRef.current = setTimeout(() => setIsSliding(false), SLIDE_MS)
-  }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeDetailsTo])
+  }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo, crossfadeDetailsTo])
 
   // ── Locus ─────────────────────────────────────────────────────────────────
 
@@ -185,7 +193,34 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       style={{ paddingBottom: '70px' }}
     >
 
-      <div style={{ position: 'absolute', height: '100dvh', width: 300, backgroundColor: 'green' }} />
+      {/* Artist photo — crossfade */}
+      <div
+        data-layer="photo-mask"
+        className="absolute top-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: '100dvh',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
+          opacity: hasInteracted ? 1 : 0,
+          transition: 'opacity 1s ease',
+        }}
+      >
+        {([0, 1] as const).map(slot => (
+          photoSlots[slot] && (
+            <img
+              key={slot}
+              data-layer={`photo-slot-${slot}`}
+              src={photoSlots[slot]!}
+              className="absolute inset-0 w-full h-full object-cover object-top"
+              style={{
+                filter: 'grayscale(1)',
+                opacity: activePhotoSlot === slot ? 1 : 0,
+                transition: 'opacity 0.5s linear',
+              }}
+            />
+          )
+        ))}
+      </div>
       {/* Color overlay — above photo, behind UI and cards */}
       <div data-layer="color-overlay" className="absolute inset-0 pointer-events-none" style={{ background: '#006191', mixBlendMode: 'multiply', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'opacity 0.3s ease' }} />
 
