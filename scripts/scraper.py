@@ -4,7 +4,6 @@ import base64
 import time
 import os
 from datetime import date, timedelta
-from datetime import datetime
 
 CLIENT_ID = os.environ["SPOTIFY_CLIENT_ID"]
 CLIENT_SECRET = os.environ["SPOTIFY_CLIENT_SECRET"]
@@ -133,43 +132,25 @@ def build_artist(token, name):
     }
 
 
-def log(msg):
-    ts = datetime.now().strftime("%H:%M:%S")
-    print(f"[{ts}] {msg}", flush=True)
-
-
 def main():
-    start_time = time.time()
-    log("Getting Spotify token...")
+    print("Getting Spotify token...")
     token = get_token()
-    log("Token OK\n")
+    print("Token OK\n")
 
     concerts = []
     start_date = date.today() + timedelta(days=1)
-    total = len(CONCERTS_TEMPLATE)
-    total_artists = sum(len(t["artists"]) for t in CONCERTS_TEMPLATE)
-    artists_done = 0
-    previews_found = 0
 
     for i, template in enumerate(CONCERTS_TEMPLATE):
         concert_date = start_date + timedelta(days=i)
         venue = VENUES[i % len(VENUES)]
-        elapsed = time.time() - start_time
 
-        log(f"── Concert {i+1}/{total}  [{elapsed:.0f}s elapsed]  {concert_date}  {template['genre']} @ {venue['name']}")
+        print(f"Concert {i+1}/30 — {concert_date} — {template['genre']} @ {venue['name']}")
 
         enriched_artists = []
-        for j, name in enumerate(template["artists"]):
-            artists_done += 1
-            log(f"   artist {j+1}/{len(template['artists'])}  ({artists_done}/{total_artists} total)  → {name}")
+        for name in template["artists"]:
             artist = build_artist(token, name)
             if artist:
-                has_preview = bool(artist.get("previewTrack") and artist["previewTrack"].get("previewUrl"))
-                if has_preview:
-                    previews_found += 1
                 enriched_artists.append(artist)
-                status = "✓ preview" if has_preview else "– no preview"
-                log(f"     {status}  (previews so far: {previews_found}/{artists_done})")
 
         concert = {
             "id": f"concert-{i+1:02d}",
@@ -186,7 +167,7 @@ def main():
         }
 
         concerts.append(concert)
-        log(f"  ✓ {len(enriched_artists)} artists loaded\n")
+        print(f"  ✓ {len(enriched_artists)} artists loaded\n")
 
     output = {
         "generatedAt": date.today().isoformat(),
@@ -199,9 +180,16 @@ def main():
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2)
 
-    elapsed = time.time() - start_time
-    log(f"Done in {elapsed:.0f}s. Wrote {len(concerts)} concerts to {out_path}")
-    log(f"Total artists: {artists_done}  |  Previews: {previews_found}/{artists_done}")
+    print(f"Done. Wrote {len(concerts)} concerts to {out_path}")
+
+    # quick stats
+    total_artists = sum(len(c["artists"]) for c in concerts)
+    with_preview = sum(
+        1 for c in concerts for a in c["artists"]
+        if a.get("previewTrack") and a["previewTrack"].get("previewUrl")
+    )
+    print(f"Total artists: {total_artists}")
+    print(f"Artists with preview URL: {with_preview}/{total_artists}")
 
 
 if __name__ == "__main__":
