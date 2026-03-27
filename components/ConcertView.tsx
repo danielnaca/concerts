@@ -23,6 +23,7 @@ const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat'
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
   const [hasInteracted, setHasInteracted] = useState(false)
+  const [hasSettled, setHasSettled] = useState(false)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
@@ -146,6 +147,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const handlePointerLeave = useCallback(() => {
     setLocusVisible(false)
     setActiveTileIndex(null)
+    setHasSettled(true)
     stopAudio()
   }, [stopAudio])
 
@@ -253,7 +255,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 backgroundColor: 'transparent',
                 boxShadow: isCenter ? '0 6px 34px rgba(0,0,0,0.15)' : 'none',
                 cursor: isCenter && !isSliding ? 'none' : 'pointer',
-                transform: `translateX(${relIdx * CAROUSEL_STEP}px)`,
+                transform: `translateX(${relIdx * (hasSettled ? CAROUSEL_STEP : GRID_SIZE + 100)}px)`,
                 transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.3, 0.64, 1)`,
               }}
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
