@@ -21,11 +21,9 @@ const TILE_DELAY = TILE_ORDER.reduce<Record<number, number>>((acc, tileIdx, pos)
 }, {})
 
 const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat', backgroundSize: '200px 200px' }
-const TILE_GREY = '#8C8C8C'
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
-  const [initialReveal, setInitialReveal] = useState(false)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
@@ -39,7 +37,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const isMutedRef = useRef(false)
   const activeTileRef = useRef<number | null>(null)
-  const hasNavigatedRef = useRef(false)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activePhotoSlotRef = useRef<0 | 1>(0)
   const activeDetailsSlotRef = useRef<0 | 1>(0)
@@ -47,9 +44,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   useEffect(() => { activeTileRef.current = activeTileIndex }, [activeTileIndex])
   useEffect(() => { activePhotoSlotRef.current = activePhotoSlot }, [activePhotoSlot])
   useEffect(() => { activeDetailsSlotRef.current = activeDetailsSlot }, [activeDetailsSlot])
-  useEffect(() => { requestAnimationFrame(() => setInitialReveal(true)) }, [])
-
-  // ── Derived values ────────────────────────────────────────────────────────
+// ── Derived values ────────────────────────────────────────────────────────
 
   const n = concerts.length
   const concert = concerts[concertIndex]
@@ -116,8 +111,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setActiveTileIndex(null)
     setLocusVisible(false)
     const next = (concertIndex - dir + n) % n
-    hasNavigatedRef.current = true
-
     crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
     crossfadeDetailsTo(next)
     setConcertIndex(next)
@@ -247,7 +240,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           const cHue = c.hueShift ?? 0
           const cTiles = buildTiles(c.artists, cHue)
           const isCenter = relIdx === 0
-          const showColor = isCenter && (initialReveal || hasNavigatedRef.current)
 
           return (
             <div
@@ -276,7 +268,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   <div
                     key={i}
                     style={{
-                      backgroundColor: showColor ? tile.color : TILE_GREY,
+                      backgroundColor: tile.color,
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
                       transition: 'box-shadow 0.1s ease',
                     }}
