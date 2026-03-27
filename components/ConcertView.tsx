@@ -147,6 +147,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setLocusVisible(true)
     const next = tileAt(x, y)
     if (activeTileRef.current !== next) {
+      activeTileRef.current = next
       setActiveTileIndex(next)
       playTrack(tiles[next]?.track?.previewUrl ?? null)
       navigator.vibrate?.(10)
