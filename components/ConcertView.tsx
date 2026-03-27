@@ -7,7 +7,7 @@ import { gradientStops, midTileColor } from '@/lib/color'
 
 const LOCUS_SIZE = 76
 const GRID_SIZE = 300
-const CAROUSEL_STEP = 332
+const CAROUSEL_STEP = 324
 const SLIDE_MS = 600
 const VISIBLE_RANGE = 3
 
@@ -38,6 +38,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const activeTileRef = useRef<number | null>(null)
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activePhotoSlotRef = useRef<0 | 1>(0)
   const activeDetailsSlotRef = useRef<0 | 1>(0)
@@ -154,6 +155,24 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     stopAudio()
   }, [stopAudio])
 
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY }
+    handlePointerMove(e)
+  }, [handlePointerMove])
+
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerDownPos.current) {
+      const dx = e.clientX - pointerDownPos.current.x
+      const dy = e.clientY - pointerDownPos.current.y
+      pointerDownPos.current = null
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+        navigate(dx > 0 ? 1 : -1)
+        return
+      }
+    }
+    handlePointerLeave()
+  }, [navigate, handlePointerLeave])
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -221,6 +240,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                     style={{
                       opacity: isActive && (activeArtistIndex === null || activeArtistIndex === i) ? 1 : isActive ? 0.4 : 1,
                       transition: 'opacity 0.3s ease',
+                      textShadow: '0 1px 12px rgba(0,0,0,0.5)',
                     }}
                   >
                     {artist.name}
@@ -263,9 +283,9 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.3, 0.64, 1), opacity 1s ease`,
               }}
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
-              onPointerDown={isCenter ? handlePointerMove : undefined}
+              onPointerDown={isCenter ? handlePointerDown : undefined}
               onPointerMove={isCenter ? handlePointerMove : undefined}
-              onPointerUp={isCenter ? handlePointerLeave : undefined}
+              onPointerUp={isCenter ? handlePointerUp : undefined}
               onPointerLeave={isCenter ? handlePointerLeave : undefined}
             >
               <div className="grid grid-cols-3 gap-px w-full h-full relative">
@@ -308,7 +328,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         style={{ top: 88, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 1s ease' }}
       >
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.5, textAlign: 'center' }}>
-          We haven't heard of most of the bands playing in our city, and there's a handful we'd want to see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
+          We haven't heard of most of the bands playing in our city, and there's a handful we'd see if we knew their music.<br /><br />Each grid represents a concert in your city, run your finger across it to sample the music.
         </p>
       </div>
       {/* Top-right tap target to reveal commit info */}
