@@ -174,7 +174,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
 
       {/* Concert info — crossfade like photos */}
-      <div className="absolute top-7 left-6" style={{ zIndex: 10 }}>
+      <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10 }}>
         {([0, 1] as const).map(slot => {
           const c = concerts[detailsSlots[slot]]
           const isActive = activeDetailsSlot === slot
@@ -217,7 +217,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Film strip carousel */}
       <div
         className="absolute left-0 right-0 overflow-hidden"
-        style={{ bottom: 100, height: GRID_SIZE, zIndex: 10 }}
+        style={{ bottom: 20, height: GRID_SIZE, zIndex: 10 }}
       >
         {Array.from({ length: VISIBLE_RANGE * 2 + 1 }, (_, k) => {
           const relIdx = k - VISIBLE_RANGE
