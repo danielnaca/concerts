@@ -157,8 +157,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden select-none"
-      style={{ background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#000', transition: 'background 0.6s ease' }}
+      className="relative w-full overflow-hidden select-none"
+      style={{ height: 'calc(100% + 70px)', paddingBottom: '70px', background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#000', transition: 'background 0.6s ease' }}
     >
       {/* Artist photo — crossfade */}
       <div
