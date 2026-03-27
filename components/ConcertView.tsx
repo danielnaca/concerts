@@ -237,7 +237,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         </div>
       </div>
 
-      <div data-layer="concert-info" className="absolute" style={{ top: 16, left: 16, zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
+      <div data-layer="concert-info" className="absolute" style={{ top: 64, left: 16, zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
         {([0, 1] as const).map(slot => {
           const c = concerts[detailsSlots[slot]]
           const isActive = activeDetailsSlot === slot
