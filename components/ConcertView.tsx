@@ -122,7 +122,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
     const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top))
     setLocusPos({ x, y })
-    setLocusVisible(true)
+    setLocusVisible(e.pointerType !== 'touch')
     const next = tileAt(x, y)
     if (activeTileRef.current !== next) {
       activeTileRef.current = next
