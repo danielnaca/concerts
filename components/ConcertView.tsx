@@ -197,9 +197,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Artist photo — crossfade */}
       <div
         data-layer="photo-mask"
-        className="pointer-events-none"
+        className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{
-          position: 'absolute', top: 0, left: 0, right: 0,
           height: '100dvh',
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
