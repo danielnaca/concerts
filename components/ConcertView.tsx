@@ -27,7 +27,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
   const [isSliding, setIsSliding] = useState(false)
   const [photoSlots, setPhotoSlots] = useState<[string | null, string | null]>([null, null])
   const [activePhotoSlot, setActivePhotoSlot] = useState<0 | 1>(0)
@@ -35,13 +34,12 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
   const gridRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const isMutedRef = useRef(false)
+  const isMutedRef = useRef(false)  // kept for audio fade logic
   const activeTileRef = useRef<number | null>(null)
   const hasNavigatedRef = useRef(false)
   const navDirRef = useRef<1 | -1>(1)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => { isMutedRef.current = isMuted }, [isMuted])
   useEffect(() => { activeTileRef.current = activeTileIndex }, [activeTileIndex])
 
   // ── Derived values ────────────────────────────────────────────────────────
@@ -104,8 +102,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   }, [fadeOut])
 
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = isMuted ? 0 : 1
-  }, [isMuted])
+  }, [])
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) fadeOut(audioRef.current, () => { audioRef.current = null })
@@ -135,10 +132,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     slideTimerRef.current = setTimeout(() => {
       setOutgoingIndex(null)
       setIsSliding(false)
-      const d = navDirRef.current
-      // New details enter from the same side as the incoming grid
-      setDetailsAnim({ opacity: 0, x: 0, transition: false })
-      requestAnimationFrame(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }))
+      // Fade out has already completed; wait 200ms then fade in new details
+      setTimeout(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }), 200)
     }, SLIDE_MS)
   }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo])
 
@@ -163,6 +158,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     if (activeTileRef.current !== next) {
       setActiveTileIndex(next)
       playTrack(tiles[next]?.track?.previewUrl ?? null)
+      navigator.vibrate?.(10)
     }
   }, [isSliding, tiles, tileAt, playTrack])
 
@@ -306,17 +302,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         })}
       </div>
 
-      {/* Controls */}
-      <div
-        className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-10"
-        style={{ height: 80, zIndex: 10 }}
-      >
-        <button onClick={() => navigate(1)} className="text-white text-2xl font-light opacity-80 hover:opacity-100 transition-opacity">Prev</button>
-        <button onClick={() => setIsMuted(m => !m)} className="text-white text-2xl font-light opacity-80 hover:opacity-100 transition-opacity">
-          {isMuted ? 'Unmute' : 'Mute'}
-        </button>
-        <button onClick={() => navigate(-1)} className="text-white text-2xl font-light opacity-80 hover:opacity-100 transition-opacity">Next</button>
-      </div>
     </div>
   )
 }

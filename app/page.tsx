@@ -1,12 +1,9 @@
-import { readFileSync } from 'fs'
-import { join } from 'path'
 import ConcertView from '@/components/ConcertView'
 import { ShowsData } from '@/types'
+import rawData from '@/public/data/shows.json'
 
 export default function Home() {
-  const data: ShowsData = JSON.parse(
-    readFileSync(join(process.cwd(), 'public/data/shows.json'), 'utf-8')
-  )
+  const data = rawData as unknown as ShowsData
 
   return (
     <main className="w-full h-full">
