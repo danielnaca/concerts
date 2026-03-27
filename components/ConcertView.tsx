@@ -267,6 +267,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 transition: `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
               }}
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
+              onPointerDown={isCenter ? handlePointerMove : undefined}
               onPointerMove={isCenter ? handlePointerMove : undefined}
               onPointerLeave={isCenter ? handlePointerLeave : undefined}
             >
