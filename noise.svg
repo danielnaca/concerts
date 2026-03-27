@@ -1,9 +1,9 @@
-<svg width="104" height="104" viewBox="0 0 104 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g filter="url(#filter0_n_1_856)">
-<rect width="103.06" height="103.06" fill="#D4D4D4"/>
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_n_5_106)">
+<path d="M300 0H0V300H300V0Z" fill="#D4D4D4"/>
 </g>
 <defs>
-<filter id="filter0_n_1_856" x="0" y="0" width="103.06" height="103.06" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_n_5_106" x="0" y="0" width="300" height="300" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
 <feTurbulence type="fractalNoise" baseFrequency="1.3972408771514893 1.3972408771514893" stitchTiles="stitch" numOctaves="3" result="noise" seed="9070" />
@@ -14,7 +14,7 @@
 <feComposite operator="in" in2="shape" in="coloredNoise1" result="noise1Clipped" />
 <feFlood flood-color="rgba(0, 0, 0, 0.25)" result="color1Flood" />
 <feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
-<feMerge result="effect1_noise_1_856">
+<feMerge result="effect1_noise_5_106">
 <feMergeNode in="shape" />
 <feMergeNode in="color1" />
 </feMerge>

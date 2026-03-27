@@ -18,7 +18,7 @@ const TILE_DELAY = TILE_ORDER.reduce<Record<number, number>>((acc, tileIdx, pos)
   return acc
 }, {})
 
-const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat', backgroundSize: '104px 104px' }
+const NOISE = { backgroundImage: "url('/noise.png')", backgroundRepeat: 'repeat', backgroundSize: '256px 256px' }
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
@@ -295,17 +295,14 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   <div
                     key={i}
                     style={{
-                      position: 'relative',
                       backgroundColor: tile.color,
                       boxShadow: isCenter && activeTileIndex === i ? 'inset 0 0 0 999px rgba(255,255,255,0.2)' : 'inset 0 0 0 999px rgba(255,255,255,0)',
                       transition: 'box-shadow 0.25s ease',
                     }}
-                  >
-                    <div style={{ position: 'absolute', inset: 0, ...NOISE, opacity: 1, pointerEvents: 'none' }} />
-                  </div>
+                  />
                 ))}
               </div>
-              <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.08, mixBlendMode: 'overlay' }} />
+              <div className="absolute inset-0 pointer-events-none" style={{ ...NOISE, opacity: 0.5 }} />
               {isCenter && (
                 <div
                   className="absolute rounded-full pointer-events-none"
