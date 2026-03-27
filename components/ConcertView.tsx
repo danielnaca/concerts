@@ -225,14 +225,16 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       <div data-layer="color-overlay" className="absolute inset-0 pointer-events-none" style={{ background: '#006191', mixBlendMode: 'multiply', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'opacity 0.3s ease' }} />
 
       {/* Concert info — crossfade like photos */}
-      {/* Top-right icon buttons */}
-      <div data-layer="top-actions" className="absolute flex flex-row gap-4" style={{ top: 16, right: 16, zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
-        {/* Search */}
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        {/* Filter — horizontal sliders */}
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="white" stroke="none"/><circle cx="16" cy="12" r="2" fill="white" stroke="none"/><circle cx="10" cy="18" r="2" fill="white" stroke="none"/></svg>
-        {/* List */}
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      {/* Top bar */}
+      <div data-layer="top-bar" className="absolute flex flex-row items-center justify-between" style={{ top: 16, left: 16, right: 16, zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
+        <div data-layer="top-bar-left" className="flex flex-row items-center" style={{ gap: 4 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Grid</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>List</span>
+        </div>
+        <div data-layer="top-bar-right" className="flex flex-row items-center gap-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="white" stroke="none"/><circle cx="16" cy="12" r="2" fill="white" stroke="none"/><circle cx="10" cy="18" r="2" fill="white" stroke="none"/></svg>
+        </div>
       </div>
 
       <div data-layer="concert-info" className="absolute" style={{ top: 16, left: 16, zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
