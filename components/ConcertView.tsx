@@ -201,9 +201,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Artist photo — crossfade */}
       <div
         data-layer="photo-mask"
-        className="absolute top-0 left-0 right-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          height: 726,
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
           opacity: hasInteracted ? 1 : 0,
@@ -218,7 +217,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               src={photoSlots[slot]!}
               className="absolute top-0 left-0 w-full object-cover object-top"
               style={{
-                height: 726,
+                height: '100%',
                 filter: 'grayscale(1)',
                 opacity: activePhotoSlot === slot ? 1 : 0,
                 transition: 'opacity 0.5s linear',
