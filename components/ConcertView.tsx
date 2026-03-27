@@ -215,9 +215,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
               key={slot}
               data-layer={`photo-slot-${slot}`}
               src={photoSlots[slot]!}
-              className="absolute top-0 left-0 w-full object-cover object-top"
+              className="absolute inset-0 w-full h-full object-cover object-top"
               style={{
-                height: '100%',
                 filter: 'grayscale(1)',
                 opacity: activePhotoSlot === slot ? 1 : 0,
                 transition: 'opacity 0.5s linear',
