@@ -185,6 +185,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       style={{ paddingBottom: '70px' }}
     >
 
+      <div style={{ position: 'absolute', height: '100dvh', width: 300, backgroundColor: 'green' }} />
       {/* Color overlay — above photo, behind UI and cards */}
       <div data-layer="color-overlay" className="absolute inset-0 pointer-events-none" style={{ background: '#006191', mixBlendMode: 'multiply', zIndex: 2, opacity: showOverlay ? 1 : 0, transition: 'opacity 0.3s ease' }} />
 
