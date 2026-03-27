@@ -30,7 +30,7 @@ const NOISE_SRCS = ['/noise/2.png', '/noise/3.png', '/noise/4.png', '/noise/5.pn
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
-  const [hasInteracted, setHasInteracted] = useState(true)
+  const [hasInteracted, setHasInteracted] = useState(false)
   const [hasSettled, setHasSettled] = useState(false)
   const [showCommit, setShowCommit] = useState(false)
   const [showOverlay, setShowOverlay] = useState(false)
@@ -193,7 +193,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       style={{ height: '100dvh', paddingBottom: '70px' }}
     >
 
-      <div style={{ position: 'absolute', height: '100dvh', width: 300, backgroundColor: 'green', zIndex: 99 }} />
+      <div style={{ position: 'absolute', height: '100dvh', width: 1, backgroundColor: 'green', zIndex: 99 }} />
       {/* Artist photo — crossfade */}
       <div
         data-layer="photo-mask"
