@@ -307,7 +307,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                       transition: 'box-shadow 0.25s ease',
                     }}
                   />
-                )})
+                  )
+                })}
               </div>
               {isCenter && (
                 <div
