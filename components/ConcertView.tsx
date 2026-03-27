@@ -8,7 +8,7 @@ import { gradientStops, midTileColor } from '@/lib/color'
 const LOCUS_SIZE = 76
 const GRID_SIZE = 311
 const CAROUSEL_STEP = 322
-const SLIDE_MS = 400
+const SLIDE_MS = 600
 const VISIBLE_RANGE = 3
 
 // Random-looking tile reveal order (fixed so no hydration mismatch)
@@ -85,14 +85,16 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       return
     }
     if (!audioRef.current) audioRef.current = new Audio()
-    audioRef.current.volume = 0
     audioRef.current.src = url
+    audioRef.current.volume = 0
     audioRef.current.play().catch(() => {})
-    fadeIntervalRef.current = setInterval(() => {
-      if (!audioRef.current) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null; return }
-      audioRef.current.volume = Math.min(1, audioRef.current.volume + 0.06)
-      if (audioRef.current.volume >= 1) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null }
-    }, 25)
+    audioRef.current.addEventListener('playing', () => {
+      fadeIntervalRef.current = setInterval(() => {
+        if (!audioRef.current) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null; return }
+        audioRef.current.volume = Math.min(1, audioRef.current.volume + 0.04)
+        if (audioRef.current.volume >= 1) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null }
+      }, 25)
+    }, { once: true })
   }, [])
 
   const stopAudio = useCallback(() => {
@@ -255,8 +257,9 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 backgroundColor: 'transparent',
                 boxShadow: isCenter ? '0 6px 34px rgba(0,0,0,0.15)' : 'none',
                 cursor: isCenter && !isSliding ? 'none' : 'pointer',
+                opacity: isCenter && !hasInteracted ? 0.3 : 1,
                 transform: `translateX(${relIdx * (hasSettled ? CAROUSEL_STEP : GRID_SIZE + 100)}px)`,
-                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.3, 0.64, 1)`,
+                transition: `transform ${SLIDE_MS}ms cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.6s ease`,
               }}
               onClick={!isCenter ? () => navigate(relIdx > 0 ? -1 : 1) : undefined}
               onPointerDown={isCenter ? handlePointerMove : undefined}
