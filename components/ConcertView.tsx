@@ -34,6 +34,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
   const gridRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const activeTileRef = useRef<number | null>(null)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activePhotoSlotRef = useRef<0 | 1>(0)
@@ -77,13 +78,20 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   // ── Audio ─────────────────────────────────────────────────────────────────
 
   const playTrack = useCallback((url: string | null) => {
+    if (fadeIntervalRef.current) { clearInterval(fadeIntervalRef.current); fadeIntervalRef.current = null }
     if (!url) {
       if (audioRef.current) audioRef.current.pause()
       return
     }
     if (!audioRef.current) audioRef.current = new Audio()
+    audioRef.current.volume = 0
     audioRef.current.src = url
     audioRef.current.play().catch(() => {})
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null; return }
+      audioRef.current.volume = Math.min(1, audioRef.current.volume + 0.06)
+      if (audioRef.current.volume >= 1) { clearInterval(fadeIntervalRef.current!); fadeIntervalRef.current = null }
+    }, 25)
   }, [])
 
   const stopAudio = useCallback(() => {
