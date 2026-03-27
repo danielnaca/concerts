@@ -6,7 +6,7 @@ export default function Home() {
   const data = rawData as unknown as ShowsData
 
   return (
-    <main style={{ width: '100%', height: '100dvh', border: '2px solid red' }}>
+    <main style={{ position: 'fixed', inset: 0, border: '2px solid red' }}>
       <ConcertView concerts={data.concerts} />
     </main>
   )
