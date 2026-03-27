@@ -11,11 +11,12 @@ const CAROUSEL_STEP = 322
 const FADE_STEP = 0.06
 const FADE_INTERVAL = 25
 const SLIDE_MS = 400
-const VISIBLE_RANGE = 3  // render current ±3 so edge mounts/unmounts are off-screen
+const VISIBLE_RANGE = 3
 
-const SPIRAL = [4, 5, 8, 7, 6, 3, 0, 1, 2]
-const TILE_DELAY = SPIRAL.reduce<Record<number, number>>((acc, tile, i) => {
-  acc[tile] = i
+// Random-looking tile reveal order (fixed so no hydration mismatch)
+const TILE_ORDER = [5, 1, 7, 3, 0, 6, 2, 8, 4]
+const TILE_DELAY = TILE_ORDER.reduce<Record<number, number>>((acc, tileIdx, pos) => {
+  acc[tileIdx] = pos
   return acc
 }, {})
 
@@ -31,18 +32,21 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [isSliding, setIsSliding] = useState(false)
   const [photoSlots, setPhotoSlots] = useState<[string | null, string | null]>([null, null])
   const [activePhotoSlot, setActivePhotoSlot] = useState<0 | 1>(0)
-  const [detailsAnim, setDetailsAnim] = useState({ opacity: 1, x: 0, transition: false })
+  const [detailsSlots, setDetailsSlots] = useState<[number, number]>([0, 0])
+  const [activeDetailsSlot, setActiveDetailsSlot] = useState<0 | 1>(0)
 
   const gridRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const isMutedRef = useRef(false)  // kept for audio fade logic
+  const isMutedRef = useRef(false)
   const activeTileRef = useRef<number | null>(null)
   const hasNavigatedRef = useRef(false)
-  const navDirRef = useRef<1 | -1>(1)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const activePhotoSlotRef = useRef<0 | 1>(0)
+  const activeDetailsSlotRef = useRef<0 | 1>(0)
 
   useEffect(() => { activeTileRef.current = activeTileIndex }, [activeTileIndex])
-  // Trigger initial center tile reveal after first paint
+  useEffect(() => { activePhotoSlotRef.current = activePhotoSlot }, [activePhotoSlot])
+  useEffect(() => { activeDetailsSlotRef.current = activeDetailsSlot }, [activeDetailsSlot])
   useEffect(() => { requestAnimationFrame(() => setInitialReveal(true)) }, [])
 
   // ── Derived values ────────────────────────────────────────────────────────
@@ -55,23 +59,12 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const activeArtistIndex = activeTileIndex !== null ? (tiles[activeTileIndex]?.artistIndex ?? null) : null
   const displayArtist = activeArtistIndex !== null ? concert.artists[activeArtistIndex] : concert.artists[0]
 
-  const dateStr = new Date(concert.date + 'T12:00:00').toLocaleDateString('en-US', {
-    month: 'long', day: 'numeric',
-  })
-
   // ── Photo crossfade ───────────────────────────────────────────────────────
-
-  const activePhotoSlotRef = useRef(activePhotoSlot)
-  useEffect(() => { activePhotoSlotRef.current = activePhotoSlot }, [activePhotoSlot])
 
   const crossfadeTo = useCallback((url: string | null) => {
     if (!url) return
     const next = activePhotoSlotRef.current === 0 ? 1 : 0
-    setPhotoSlots(prev => {
-      const s: [string | null, string | null] = [prev[0], prev[1]]
-      s[next] = url
-      return s
-    })
+    setPhotoSlots(prev => { const s: [string | null, string | null] = [prev[0], prev[1]]; s[next] = url; return s })
     requestAnimationFrame(() => setActivePhotoSlot(next))
   }, [])
 
@@ -79,6 +72,14 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     crossfadeTo(displayArtist?.images?.large ?? null)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayArtist?.id])
+
+  // ── Details crossfade ─────────────────────────────────────────────────────
+
+  const crossfadeDetailsTo = useCallback((concertIdx: number) => {
+    const next = activeDetailsSlotRef.current === 0 ? 1 : 0
+    setDetailsSlots(prev => { const s: [number, number] = [prev[0], prev[1]]; s[next] = concertIdx; return s })
+    requestAnimationFrame(() => setActiveDetailsSlot(next))
+  }, [])
 
   // ── Audio ─────────────────────────────────────────────────────────────────
 
@@ -104,17 +105,11 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     }, FADE_INTERVAL)
   }, [fadeOut])
 
-  useEffect(() => {
-  }, [])
-
   const stopAudio = useCallback(() => {
     if (audioRef.current) fadeOut(audioRef.current, () => { audioRef.current = null })
   }, [fadeOut])
 
-  // ── Carousel — film strip ─────────────────────────────────────────────────
-  // Each grid lives at its own absolute position (relIdx × CAROUSEL_STEP).
-  // Navigating updates concertIndex immediately → every grid's transform changes
-  // → CSS transitions fire on all of them at once. No container snap needed.
+  // ── Carousel ──────────────────────────────────────────────────────────────
 
   const navigate = useCallback((dir: 1 | -1) => {
     if (isSliding) return
@@ -122,21 +117,16 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setActiveTileIndex(null)
     setLocusVisible(false)
     const next = (concertIndex - dir + n) % n
-    navDirRef.current = dir
     hasNavigatedRef.current = true
 
     crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
+    crossfadeDetailsTo(next)
     setConcertIndex(next)
     setIsSliding(true)
-    setDetailsAnim({ opacity: 0, x: 0, transition: true })
 
     if (slideTimerRef.current) clearTimeout(slideTimerRef.current)
-    slideTimerRef.current = setTimeout(() => {
-      setIsSliding(false)
-      // Fade out has already completed; wait 200ms then fade in new details
-      setTimeout(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }), 200)
-    }, SLIDE_MS)
-  }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo])
+    slideTimerRef.current = setTimeout(() => setIsSliding(false), SLIDE_MS)
+  }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo, crossfadeDetailsTo])
 
   // ── Locus ─────────────────────────────────────────────────────────────────
 
@@ -201,37 +191,51 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         ))}
       </div>
 
-      {/* Dark overlay between photo and UI */}
+      {/* Dark overlay */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
 
-      {/* Concert info + artist list */}
-      <div
-        className="absolute top-7 left-6 flex flex-col gap-6"
-        style={{
-          zIndex: 10,
-          opacity: detailsAnim.opacity,
-          transform: `translateX(${detailsAnim.x}px)`,
-          transition: detailsAnim.transition ? 'opacity 0.3s linear' : 'none',
-        }}
-      >
-        <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75 }}>
-          <p>{dateStr}</p>
-          <p>{concert.venue}</p>
-        </div>
-        <div className="flex flex-col">
-          {concert.artists.map((artist, i) => (
-            <p
-              key={artist.id}
-              className="text-white text-2xl font-light transition-opacity duration-300"
-              style={{ opacity: activeArtistIndex === null || activeArtistIndex === i ? 1 : 0.4 }}
+      {/* Concert info — crossfade like photos */}
+      <div className="absolute top-7 left-6" style={{ zIndex: 10 }}>
+        {([0, 1] as const).map(slot => {
+          const c = concerts[detailsSlots[slot]]
+          const isActive = activeDetailsSlot === slot
+          const cDateStr = new Date(c.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+          return (
+            <div
+              key={slot}
+              className="flex flex-col gap-6"
+              style={{
+                position: slot === 0 ? 'relative' : 'absolute',
+                top: 0, left: 0,
+                opacity: isActive ? 1 : 0,
+                transition: 'opacity 0.3s linear',
+                pointerEvents: isActive ? 'auto' : 'none',
+              }}
             >
-              {artist.name}
-            </p>
-          ))}
-        </div>
+              <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75 }}>
+                <p>{cDateStr}</p>
+                <p>{c.venue}</p>
+              </div>
+              <div className="flex flex-col">
+                {c.artists.map((artist, i) => (
+                  <p
+                    key={artist.id}
+                    className="text-white text-2xl font-light"
+                    style={{
+                      opacity: isActive && (activeArtistIndex === null || activeArtistIndex === i) ? 1 : isActive ? 0.4 : 1,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                  >
+                    {artist.name}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )
+        })}
       </div>
 
-      {/* Film strip carousel — grids positioned absolutely, all slide together */}
+      {/* Film strip carousel */}
       <div
         className="absolute left-0 right-0 overflow-hidden"
         style={{ bottom: 100, height: GRID_SIZE, zIndex: 10 }}
@@ -273,7 +277,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                       backgroundColor: showColor ? tile.color : TILE_GREY,
                       filter: isCenter && activeTileIndex === i ? 'brightness(1.2)' : 'brightness(1)',
                       transition: isCenter
-                        ? `background-color 0.2s ease ${TILE_DELAY[i] * 0.1}s, filter 0.1s ease`
+                        ? `background-color 0.2s ease ${TILE_DELAY[i] * 0.07}s, filter 0.1s ease`
                         : 'background-color 0.3s ease, filter 0.1s ease',
                     }}
                   />
@@ -298,7 +302,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           )
         })}
       </div>
-
     </div>
   )
 }
