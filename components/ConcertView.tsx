@@ -194,8 +194,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          maskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 90%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 90%)',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
           opacity: hasInteracted ? 1 : 0,
           transition: 'opacity 1s ease',
         }}
