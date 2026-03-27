@@ -189,11 +189,11 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   return (
     <div
       data-layer="app-root"
-      className="relative w-full h-full overflow-hidden select-none"
-      style={{ paddingBottom: '70px' }}
+      className="relative w-full overflow-hidden select-none"
+      style={{ height: '100dvh', paddingBottom: '70px' }}
     >
 
-      <div style={{ position: 'absolute', height: '100dvh', width: 30, backgroundColor: 'green', zIndex: 99 }} />
+      <div style={{ position: 'absolute', height: '100dvh', width: 300, backgroundColor: 'green', zIndex: 99 }} />
       {/* Artist photo — crossfade */}
       <div
         data-layer="photo-mask"
