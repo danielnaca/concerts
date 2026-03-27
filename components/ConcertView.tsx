@@ -22,6 +22,7 @@ const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat'
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
+  const [hasInteracted, setHasInteracted] = useState(false)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
@@ -97,6 +98,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setActiveTileIndex(null)
     setLocusVisible(false)
     const next = (concertIndex - dir + n) % n
+    setHasInteracted(true)
     crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
     crossfadeDetailsTo(next)
     setConcertIndex(next)
@@ -121,6 +123,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     const rect = grid.getBoundingClientRect()
     const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
     const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top))
+    setHasInteracted(true)
     setLocusPos({ x, y })
     setLocusVisible(e.pointerType !== 'touch')
     const next = tileAt(x, y)
@@ -151,6 +154,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
         style={{
           maskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 75%)',
           WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 20%, transparent 75%)',
+          opacity: hasInteracted ? 1 : 0,
+          transition: 'opacity 0.6s ease',
         }}
       >
         {([0, 1] as const).map(slot => (
@@ -171,10 +176,10 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Dark overlay */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2, opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }} />
 
       {/* Concert info — crossfade like photos */}
-      <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10 }}>
+      <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }}>
         {([0, 1] as const).map(slot => {
           const c = concerts[detailsSlots[slot]]
           const isActive = activeDetailsSlot === slot
@@ -283,7 +288,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       {/* Build info */}
       <div
         className="absolute bottom-2 left-0 right-0 text-center pointer-events-none"
-        style={{ zIndex: 20, fontSize: 14, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.02em' }}
+        style={{ zIndex: 20, fontSize: 14, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.02em', opacity: hasInteracted ? 1 : 0, transition: 'opacity 0.6s ease' }}
       >
         {process.env.NEXT_PUBLIC_COMMIT_INFO}
       </div>
