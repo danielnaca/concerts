@@ -191,6 +191,11 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       className="relative w-full h-full overflow-hidden select-none"
       style={{ paddingBottom: '70px' }}
     >
+      {/* Background gradient — fades in on first interaction */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(180deg, #D4D4D4 0%, #696969 100%)', opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease', zIndex: 0 }}
+      />
       {/* Artist photo — crossfade */}
       <div
         className="absolute top-0 left-0 right-0 pointer-events-none"
