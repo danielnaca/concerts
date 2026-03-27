@@ -245,7 +245,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 pointerEvents: isActive ? 'auto' : 'none',
               }}
             >
-              <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75, textShadow: '0 1px 12px rgba(0,0,0,0.5)' }}>
+              <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75, textShadow: '0 1px 12px rgba(0,0,0,0.25)' }}>
                 <p>{cDateStr}</p>
                 <p>{c.venue}</p>
               </div>
@@ -257,7 +257,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                     style={{
                       opacity: isActive && (activeArtistIndex === null || activeArtistIndex === i) ? 1 : isActive ? 0.4 : 1,
                       transition: 'opacity 0.3s ease',
-                      textShadow: '0 1px 12px rgba(0,0,0,0.5)',
+                      textShadow: '0 1px 12px rgba(0,0,0,0.25)',
                     }}
                   >
                     {artist.name}
