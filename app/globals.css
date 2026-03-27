@@ -6,7 +6,6 @@ html, body {
   min-height: 100lvh;
   overscroll-behavior: none;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #777777 0%, #D4D4D4 100%);
-  background-attachment: fixed;
+  background: #000000;
 }
 
