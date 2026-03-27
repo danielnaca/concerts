@@ -8,8 +8,6 @@ import { gradientStops, midTileColor } from '@/lib/color'
 const LOCUS_SIZE = 76
 const GRID_SIZE = 311
 const CAROUSEL_STEP = 322
-const FADE_STEP = 0.06
-const FADE_INTERVAL = 25
 const SLIDE_MS = 400
 const VISIBLE_RANGE = 3
 
@@ -35,7 +33,6 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
   const gridRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const isMutedRef = useRef(false)
   const activeTileRef = useRef<number | null>(null)
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activePhotoSlotRef = useRef<0 | 1>(0)
@@ -78,29 +75,18 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
   // ── Audio ─────────────────────────────────────────────────────────────────
 
-  const fadeOut = useCallback((audio: HTMLAudioElement, onDone?: () => void) => {
-    const id = setInterval(() => {
-      audio.volume = Math.max(0, audio.volume - FADE_STEP)
-      if (audio.volume <= 0) { clearInterval(id); audio.pause(); onDone?.() }
-    }, FADE_INTERVAL)
-  }, [])
-
   const playTrack = useCallback((url: string | null) => {
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
-    if (!url) return
-    const audio = new Audio(url)
-    audio.volume = 0
-    audioRef.current = audio
-    audio.play().catch(() => {})
-    const id = setInterval(() => {
-      if (audioRef.current !== audio) { clearInterval(id); return }
-      audio.volume = Math.min(audio.volume + FADE_STEP, 1)
-      if (audio.volume >= 1) clearInterval(id)
-    }, FADE_INTERVAL)
+    if (!url) {
+      if (audioRef.current) audioRef.current.pause()
+      return
+    }
+    if (!audioRef.current) audioRef.current = new Audio()
+    audioRef.current.src = url
+    audioRef.current.play().catch(() => {})
   }, [])
 
   const stopAudio = useCallback(() => {
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null }
+    if (audioRef.current) audioRef.current.pause()
   }, [])
 
   // ── Carousel ──────────────────────────────────────────────────────────────
