@@ -11,6 +11,12 @@ const CAROUSEL_STEP = 324
 const SLIDE_MS = 600
 const VISIBLE_RANGE = 3
 
+// Deterministic overlay hue per concert — picks from 0–14 (reds) or 220–360 (blues/magentas)
+function overlayHue(idx: number): number {
+  const n = (idx * 47 + 13) % 156
+  return n < 15 ? n : n - 15 + 220
+}
+
 // Random-looking tile reveal order (fixed so no hydration mismatch)
 const TILE_ORDER = [5, 1, 7, 3, 0, 6, 2, 8, 4]
 const TILE_DELAY = TILE_ORDER.reduce<Record<number, number>>((acc, tileIdx, pos) => {
@@ -212,7 +218,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Color overlay — above photo, behind UI and cards */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: `hsl(${hue}, 100%, 31%)`, mixBlendMode: 'exclusion', zIndex: 2, transition: 'background 1s ease' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `hsl(${overlayHue(concertIndex)}, 100%, 28%)`, mixBlendMode: 'exclusion', zIndex: 2, transition: 'background 1s ease' }} />
 
       {/* Concert info — crossfade like photos */}
       <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
