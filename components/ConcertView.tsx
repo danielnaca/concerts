@@ -298,6 +298,15 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           )
         })}
       </div>
+      {/* Intro text */}
+      <div
+        className="absolute left-6 right-6 pointer-events-none"
+        style={{ top: 48, zIndex: 20, opacity: hasInteracted ? 0 : 1, transition: 'opacity 0.6s ease' }}
+      >
+        <p className="text-white text-2xl font-light leading-snug">
+          You probably haven't heard of most of the bands playing in your city — but you'd want to check out a few of them if you knew what they sounded like. Each tile represents an upcoming concert. Run your finger across the grid to sample its music.
+        </p>
+      </div>
       {/* Build info */}
       <div
         className="absolute bottom-2 left-0 right-0 text-center pointer-events-none"
