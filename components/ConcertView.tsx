@@ -7,7 +7,7 @@ import { gradientStops, midTileColor } from '@/lib/color'
 
 const LOCUS_SIZE = 76
 const GRID_SIZE = 311
-const CAROUSEL_STEP = 322
+const CAROUSEL_STEP = 335
 const SLIDE_MS = 600
 const VISIBLE_RANGE = 3
 
@@ -159,7 +159,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   return (
     <div
       className="relative w-full h-full overflow-hidden select-none"
-      style={{ paddingBottom: '70px', background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#000', transition: 'background 1s ease' }}
+      style={{ paddingBottom: '70px', background: hasInteracted ? `linear-gradient(to bottom, ${gradTop} 0%, ${gradBot} 100%)` : '#333333', transition: 'background 1s ease' }}
     >
       {/* Artist photo — crossfade */}
       <div
@@ -189,7 +189,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       </div>
 
       {/* Dark overlay */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} />
+      {/* <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.3)', zIndex: 2 }} /> */}
 
       {/* Concert info — crossfade like photos */}
       <div className="absolute top-7 left-6 right-6" style={{ zIndex: 10, opacity: hasInteracted ? 1 : 0, transition: 'opacity 1s ease' }}>
@@ -234,7 +234,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
 
       {/* Film strip carousel */}
       <div
-        className="absolute left-0 right-0 overflow-hidden"
+        className="absolute left-0 right-0"
         style={{ bottom: 60, height: GRID_SIZE, zIndex: 10 }}
       >
         {Array.from({ length: VISIBLE_RANGE * 2 + 1 }, (_, k) => {

@@ -1,7 +1,7 @@
 // Top and bottom HSL stops for the gradient
 // H lerps 205→197, S lerps 28→19%, L lerps 83→41%
 const TOP = { h: 205, s: 0, l: 0.83 }
-const BOT = { h: 197, s: 0, l: 0 }
+const BOT = { h: 0, s: 0, l: 0.2 }
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t
