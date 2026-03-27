@@ -8,12 +8,3 @@ html, body {
   font-family: 'Inter', sans-serif;
 }
 
-@keyframes tileIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes tileOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}

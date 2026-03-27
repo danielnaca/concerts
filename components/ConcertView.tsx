@@ -20,10 +20,11 @@ const TILE_DELAY = SPIRAL.reduce<Record<number, number>>((acc, tile, i) => {
 }, {})
 
 const NOISE = { backgroundImage: "url('/noise.svg')", backgroundRepeat: 'repeat', backgroundSize: '200px 200px' }
+const TILE_GREY = '#8C8C8C'
 
 export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const [concertIndex, setConcertIndex] = useState(0)
-  const [outgoingIndex, setOutgoingIndex] = useState<number | null>(null)
+  const [initialReveal, setInitialReveal] = useState(false)
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null)
   const [locusPos, setLocusPos] = useState({ x: GRID_SIZE / 2, y: GRID_SIZE / 2 })
   const [locusVisible, setLocusVisible] = useState(false)
@@ -41,6 +42,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => { activeTileRef.current = activeTileIndex }, [activeTileIndex])
+  // Trigger initial center tile reveal after first paint
+  useEffect(() => { requestAnimationFrame(() => setInitialReveal(true)) }, [])
 
   // ── Derived values ────────────────────────────────────────────────────────
 
@@ -123,14 +126,12 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     hasNavigatedRef.current = true
 
     crossfadeTo(concerts[next].artists[0]?.images?.large ?? null)
-    setOutgoingIndex(concertIndex)
     setConcertIndex(next)
     setIsSliding(true)
     setDetailsAnim({ opacity: 0, x: 0, transition: true })
 
     if (slideTimerRef.current) clearTimeout(slideTimerRef.current)
     slideTimerRef.current = setTimeout(() => {
-      setOutgoingIndex(null)
       setIsSliding(false)
       // Fade out has already completed; wait 200ms then fade in new details
       setTimeout(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }), 200)
@@ -241,9 +242,8 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           const c = concerts[idx]
           const cHue = c.hueShift ?? 0
           const cTiles = buildTiles(c.artists, cHue)
-          const cSideColor = midTileColor(c.artists.length, cHue)
           const isCenter = relIdx === 0
-          const isOutgoing = outgoingIndex === idx
+          const showColor = isCenter && (initialReveal || hasNavigatedRef.current)
 
           return (
             <div
@@ -270,14 +270,11 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                   <div
                     key={i}
                     style={{
-                      backgroundColor: tile.color,
+                      backgroundColor: showColor ? tile.color : TILE_GREY,
                       filter: isCenter && activeTileIndex === i ? 'brightness(1.2)' : 'brightness(1)',
-                      animation: isOutgoing
-                        ? 'tileOut 0.3s ease forwards'
-                        : isCenter && !hasNavigatedRef.current
-                          ? `tileIn 0.2s ease ${TILE_DELAY[i] * 0.1}s both`
-                          : 'none',
-                      transition: 'filter 0.1s ease',
+                      transition: isCenter
+                        ? `background-color 0.2s ease ${TILE_DELAY[i] * 0.1}s, filter 0.1s ease`
+                        : 'background-color 0.3s ease, filter 0.1s ease',
                     }}
                   />
                 ))}
