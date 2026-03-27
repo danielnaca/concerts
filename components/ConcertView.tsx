@@ -129,7 +129,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
     setOutgoingIndex(concertIndex)
     setConcertIndex(next)
     setIsSliding(true)
-    setDetailsAnim({ opacity: 0, x: dir * 20, transition: true })
+    setDetailsAnim({ opacity: 0, x: 0, transition: true })
 
     if (slideTimerRef.current) clearTimeout(slideTimerRef.current)
     slideTimerRef.current = setTimeout(() => {
@@ -137,7 +137,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
       setIsSliding(false)
       const d = navDirRef.current
       // New details enter from the same side as the incoming grid
-      setDetailsAnim({ opacity: 0, x: -d * 80, transition: false })
+      setDetailsAnim({ opacity: 0, x: 0, transition: false })
       requestAnimationFrame(() => setDetailsAnim({ opacity: 1, x: 0, transition: true }))
     }, SLIDE_MS)
   }, [isSliding, concertIndex, n, concerts, stopAudio, crossfadeTo])
@@ -259,7 +259,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
                 left: `calc(50% - ${GRID_SIZE / 2}px)`,
                 width: GRID_SIZE, height: GRID_SIZE,
                 borderRadius: 34, overflow: 'hidden',
-                backgroundColor: cSideColor,
+                backgroundColor: 'transparent',
                 boxShadow: isCenter ? '0 6px 34px rgba(0,0,0,0.15)' : 'none',
                 cursor: isCenter && !isSliding ? 'none' : 'pointer',
                 transform: `translateX(${relIdx * CAROUSEL_STEP}px)`,
