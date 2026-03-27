@@ -210,7 +210,7 @@ export default function ConcertView({ concerts }: { concerts: Concert[] }) {
           zIndex: 10,
           opacity: detailsAnim.opacity,
           transform: `translateX(${detailsAnim.x}px)`,
-          transition: detailsAnim.transition ? 'opacity 0.3s ease, transform 0.3s ease' : 'none',
+          transition: detailsAnim.transition ? 'opacity 0.3s linear' : 'none',
         }}
       >
         <div className="text-white text-sm font-bold leading-relaxed" style={{ opacity: 0.75 }}>
